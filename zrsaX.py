@@ -65,7 +65,12 @@ def testencrypt(pk, sk, mod):
     return False
 
 def keygen():
+    y = 1218141
     y = 171151
+    y = 1012761
+    y = 1095713
+    y = 9050205
+    y = 33046797361
     o = 8
     good = 0
     while good != 1:
@@ -82,9 +87,9 @@ def keygen():
         n = x * y * z
         r = (pow(x, o) * pow(z, o))
         t = (((x - 1) * (y - 1) * (z - 1)) * (r - 1))
-        sk = r
-        pk = multiplicative_inverse(r, t)
+        pk = r
+        sk = multiplicative_inverse(r, t)
         if pk != None:
-            if testencrypt(sk, pk, n):
+            if testencrypt(pk, sk, n):
                 good = 1
     return sk, pk, n

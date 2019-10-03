@@ -5,9 +5,9 @@ import sys
 from os import urandom
 from Crypto.Util import number
 
-# 2040 bit key max
-keylen = 8
-Klen = 29
+# 288 bit key max
+keylen = 74
+Klen = 75
 mode = sys.argv[1]
 infile = sys.argv[2]
 outfile = sys.argv[3]
@@ -19,6 +19,8 @@ if mode == "e":
     msg = f.read()
     f.close()
     keyP = urandom(keylen)
+    KP = number.bytes_to_long(keyP)
+    print KP
     K = number.long_to_bytes(zrsaX_encrypt(number.bytes_to_long(keyP), key, mod))
     ctxt = Teal().encrypt(msg, keyP)
     print len(K)
@@ -31,6 +33,8 @@ elif mode == "d":
     f.close()
     K = data[:Klen]
     msg = data[Klen:len(data) -1]
+    KP = zrsaX_decrypt(number.bytes_to_long(K), key, mod)
+    print KP
     keyP = number.long_to_bytes(zrsaX_decrypt(number.bytes_to_long(K), key, mod))
     ptxt = Teal().decrypt(msg, keyP)
     f = open(outfile, "w")
