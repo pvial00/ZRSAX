@@ -4,9 +4,11 @@ class Teal:
     def keysetup(self, key):
         s = range(256)
         j = 0
-        for c, byte in enumerate(key):
+        c = 0
+        for byte in key:
             s[c] = (s[c] + ord(byte)) % 256
             j = (j + ord(byte)) % 256
+            c = (c + 1) % 256
         for x in range(768):
             j = (s[j] + s[c]) % 256
             s[j] = (s[j] + s[c]) % 256
