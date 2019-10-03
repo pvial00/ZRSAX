@@ -64,14 +64,7 @@ def testencrypt(pk, sk, mod):
             return False
     return False
 
-def keygen():
-    y = 1218141
-    y = 171151
-    y = 1012761
-    y = 1095713
-    y = 9050205
-    y = 33046797361
-    o = 8
+def keygen(y=33046797361, o=8):
     good = 0
     while good != 1:
         x = number.getRandomRange(1, (y**o))
