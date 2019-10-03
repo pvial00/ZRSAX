@@ -51,7 +51,8 @@ def verify(ptxt, ctxt, pk, mod, s):
         return False
 
 def testencrypt(pk, sk, mod):
-    msg = "012345678901234567890"
+    msg = "Hi"
+    #msg = "012345678901234567890"
     m = number.bytes_to_long(msg)
     ctxt = encrypt(m, pk, mod)
     if sk != None:
@@ -64,7 +65,7 @@ def testencrypt(pk, sk, mod):
     return False
 
 def keygen():
-    y = 9973
+    y = 171151
     o = 8
     good = 0
     while good != 1:
@@ -79,10 +80,11 @@ def keygen():
             z = number.getRandomRange(1, x)
             g = mygcd(z, x)
         n = x * y * z
-        r = pow(x, o) * pow(z, o)
+        r = (pow(x, o) * pow(z, o))
         t = (((x - 1) * (y - 1) * (z - 1)) * (r - 1))
         sk = r
         pk = multiplicative_inverse(r, t)
-        if testencrypt(sk, pk, n):
-            good = 1
+        if pk != None:
+            if testencrypt(sk, pk, n):
+                good = 1
     return sk, pk, n
