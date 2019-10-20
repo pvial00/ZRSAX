@@ -1,8 +1,4 @@
-import random
 from Crypto.Util import number
-from Crypto.Random import random as prandom
-
-# requires pycrypto
 
 def mygcd(a, b):
     while True:
@@ -34,6 +30,20 @@ def multiplicative_inverse(e, phi):
     if temp_phi == 1:
         return d + phi
 
+def testencrypt(pk, sk, mod):
+    #msg = "012345678901234567890"
+    msg = "H"
+    m = number.bytes_to_long(msg)
+    ctxt = encrypt(m, pk, mod)
+    if sk != None:
+
+        ptxt = decrypt(ctxt, sk, mod)
+        if ptxt == m:
+            return True
+        else:
+            return False
+    return False
+
 def encrypt(ptxt, pk, mod):
     return pow(ptxt, pk, mod)
 
@@ -50,38 +60,26 @@ def verify(ptxt, ctxt, pk, mod, s):
     else:
         return False
 
-def testencrypt(pk, sk, mod):
-    msg = "Hi"
-    #msg = "012345678901234567890"
-    m = number.bytes_to_long(msg)
-    ctxt = encrypt(m, pk, mod)
-    if sk != None:
-
-        ptxt = decrypt(ctxt, sk, mod)
-        if ptxt == m:
-            return True
-        else:
-            return False
-    return False
-
-def keygen(y=33046797361, o=8):
+def keygen():
     good = 0
+    psize = 512
     while good != 1:
-        x = number.getRandomRange(1, (y**o))
-        g = mygcd(x, y)
-        while g != 1:
-            x = number.getRandomRange(1, (y ** o))
-            g = mygcd(x, y)
-        z = number.getRandomRange(1, x)
-        g = mygcd(z, x)
-        while g != 1:
-            z = number.getRandomRange(1, x)
-            g = mygcd(z, x)
-        n = x * y * z
-        r = (pow(x, o) * pow(z, o))
-        t = (((x - 1) * (y - 1) * (z - 1)) * (r - 1))
-        pk = r
-        sk = multiplicative_inverse(r, t)
+        k = number.getPrime(psize)
+        l = number.getPrime(psize)
+        m = number.getPrime(psize)
+        n = (l * m * k)
+        t = (((l - 1) * (m - 1) * (k - 1)))
+        r = (pow(k, 3) + (k * l) + m)
+        x = number.getRandomRange(1, r)
+        y = number.getRandomRange(1, r)
+        z = number.getRandomRange(1, r)
+        e = ((pow(x, 3) + (x * y) + z))
+        p = number.getRandomRange(1, e)
+        q = number.getRandomRange(1, e)
+        v = number.getRandomRange(1, e)
+        pt = p + q + v
+        sk = (pow(x, 3) + (x * y) + pt)
+        pk = multiplicative_inverse(sk, t)
         if pk != None:
             if testencrypt(pk, sk, n):
                 good = 1
