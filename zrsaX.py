@@ -62,14 +62,14 @@ def verify(ptxt, ctxt, pk, mod, s):
 
 def keygen():
     good = 0
-    psize = 8
+    psize = 512
     while good != 1:
         k = number.getPrime(psize)
         l = number.getPrime(psize)
         m = number.getPrime(psize)
+        n = k * l * m
         r = (pow(k, 3) + (k * l) + m)
-        n = (l * m * k * r)
-        t = (((l - 1) * (m - 1) * (k - 1) * (r - 1)))
+        t = (((l - 1) * (m - 1) * (k - 1)))
         x = number.getRandomRange(1, r)
         y = number.getRandomRange(1, r)
         z = number.getRandomRange(1, r)
@@ -77,9 +77,17 @@ def keygen():
         p = number.getRandomRange(1, e)
         q = number.getRandomRange(1, e)
         v = number.getRandomRange(1, e)
-        pt = p + q + v
-        sk = (pow(x, 3) + (x * y) + pt)
-        pk = multiplicative_inverse(sk, t)
+        pt = number.getRandomRange(1, e)
+        g = mygcd(pt, e)
+        while g != 1:
+            pt = number.getRandomRange(1, e)
+            g = mygcd(pt, e)
+            if g == 1:
+                break
+        _pk = pt
+        _sk = multiplicative_inverse(_pk, e)
+        pk = _sk
+        sk = multiplicative_inverse(pk, t)
         if pk != None:
             if testencrypt(pk, sk, n):
                 good = 1
