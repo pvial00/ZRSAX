@@ -62,14 +62,14 @@ def verify(ptxt, ctxt, pk, mod, s):
 
 def keygen():
     good = 0
-    psize = 8
+    psize = 512
     while good != 1:
         k = number.getPrime(psize)
         l = number.getPrime(psize)
         m = number.getPrime(psize)
+        n = (l * m * k)
+        t = (((l - 1) * (m - 1) * (k - 1)))
         r = (pow(k, 3) + (k * l) + m)
-        n = (l * m * k * r)
-        t = (((l - 1) * (m - 1) * (k - 1) * (r - 1)))
         x = number.getRandomRange(1, r)
         y = number.getRandomRange(1, r)
         z = number.getRandomRange(1, r)
