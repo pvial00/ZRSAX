@@ -74,9 +74,6 @@ def keygen():
         y = number.getRandomRange(1, r)
         z = number.getRandomRange(1, r)
         e = ((pow(x, 3) + (x * y) + z))
-        p = number.getRandomRange(1, e)
-        q = number.getRandomRange(1, e)
-        v = number.getRandomRange(1, e)
         pt = number.getRandomRange(1, e)
         g = mygcd(pt, e)
         while g != 1:
