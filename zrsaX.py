@@ -1,6 +1,7 @@
 import random
 from Crypto.Util import number
 from Crypto.Random import random as prandom
+import math
 
 # requires pycrypto
 
@@ -66,15 +67,19 @@ def testencrypt(pk, sk, mod):
 
 def keygen():
     good = 0
-    psize = 512
+    psize = 4
     o = 2
     while good != 1:
-        k = number.getPrime(psize)
         l = number.getPrime(psize)
         m = number.getPrime(psize)
         a = l * m
-        e = pow(l, 3) + (l * m) + k
-        r = pow(l, o) + pow(m, o) + k
+        e = pow(l, 2) + pow(m, 2)
+        x = number.getRandomRange(1, (e))
+        y = number.getRandomRange(1, (e))
+        r = pow(x, 2) + pow(y, 2)
+        p = number.getRandomRange(1, (r**o))
+        q = number.getRandomRange(1, (r**o))
+        v = number.getRandomRange(1, (r**o))
         if number.isPrime(e) == False:
             while True:
                 e += 1
@@ -85,8 +90,8 @@ def keygen():
                 r += 1
                 if number.isPrime(r) == True:
                     break
-        n = (r * k) % e
-        t = ((e - 1) * (r - 1) * (k - 1))  
+        n = (e * r)
+        t = (((r - 1) * (e - 1)))
         z = (number.getRandomRange(1, t))
         g = number.GCD(z, t)
         while g != 1:
@@ -98,6 +103,6 @@ def keygen():
         sk = number.inverse(pk, t)
         if pk != None:
             if testencrypt(pk, sk, n):
-                print "klm", k, l, m, e, r
+                print "lm", l, m, e, r
                 good = 1
     return sk, pk, n
