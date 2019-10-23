@@ -1,4 +1,8 @@
+import random
 from Crypto.Util import number
+from Crypto.Random import random as prandom
+
+# requires pycrypto
 
 def mygcd(a, b):
     while True:
@@ -30,20 +34,6 @@ def multiplicative_inverse(e, phi):
     if temp_phi == 1:
         return d + phi
 
-def testencrypt(pk, sk, mod):
-    #msg = "012345678901234567890"
-    msg = "H"
-    m = number.bytes_to_long(msg)
-    ctxt = encrypt(m, pk, mod)
-    if sk != None:
-
-        ptxt = decrypt(ctxt, sk, mod)
-        if ptxt == m:
-            return True
-        else:
-            return False
-    return False
-
 def encrypt(ptxt, pk, mod):
     return pow(ptxt, pk, mod)
 
@@ -60,32 +50,54 @@ def verify(ptxt, ctxt, pk, mod, s):
     else:
         return False
 
+def testencrypt(pk, sk, mod):
+    msg = "012345678901234567890"
+    msg = "H"
+    m = number.bytes_to_long(msg)
+    ctxt = encrypt(m, pk, mod)
+    if sk != None:
+
+        ptxt = decrypt(ctxt, sk, mod)
+        if ptxt == m:
+            return True
+        else:
+            return False
+    return False
+
 def keygen():
     good = 0
     psize = 512
+    o = 2
     while good != 1:
         k = number.getPrime(psize)
         l = number.getPrime(psize)
         m = number.getPrime(psize)
-        n = k * l * m
-        r = (pow(k, 3) + (k * l) + m)
-        t = (((l - 1) * (m - 1) * (k - 1)))
-        x = number.getRandomRange(1, r)
-        y = number.getRandomRange(1, r)
-        z = number.getRandomRange(1, r)
-        e = ((pow(x, 3) + (x * y) + z))
-        pt = number.getRandomRange(1, e)
-        g = mygcd(pt, e)
+        a = l * m
+        e = pow(l, 3) + (l * m) + k
+        r = pow(l, o) + pow(m, o) + k
+        if number.isPrime(e) == False:
+            while True:
+                e += 1
+                if number.isPrime(e) == True:
+                    break
+        if number.isPrime(r) == False:
+            while True:
+                r += 1
+                if number.isPrime(r) == True:
+                    break
+        n = (r * k) % e
+        t = ((e - 1) * (r - 1) * (k - 1))  
+        z = (number.getRandomRange(1, t))
+        g = number.GCD(z, t)
         while g != 1:
-            pt = number.getRandomRange(1, e)
-            g = mygcd(pt, e)
+            z = (number.getRandomRange(1, t))
+            g = number.GCD(z, t)
             if g == 1:
                 break
-        _pk = pt
-        _sk = multiplicative_inverse(_pk, e)
-        pk = _sk
-        sk = multiplicative_inverse(pk, t)
+        pk = z
+        sk = number.inverse(pk, t)
         if pk != None:
             if testencrypt(pk, sk, n):
+                print "klm", k, l, m, e, r
                 good = 1
     return sk, pk, n

@@ -51,7 +51,6 @@ def verify(ptxt, ctxt, pk, mod, s):
         return False
 
 def testencrypt(pk, sk, mod):
-    msg = "012345678901234567890"
     msg = "H"
     m = number.bytes_to_long(msg)
     ctxt = encrypt(m, pk, mod)
@@ -66,12 +65,15 @@ def testencrypt(pk, sk, mod):
 
 def keygen():
     good = 0
-    psize = 512
+    psize = 4
     o = 2
     while good != 1:
-        k = number.getPrime(psize)
-        l = number.getPrime(psize)
-        m = number.getPrime(psize)
+        #k = number.getPrime(psize)
+        #l = number.getPrime(psize)
+        #m = number.getPrime(psize)
+        k = 179
+        l = 131
+        m = 221
         a = l * m
         e = pow(l, 3) + (l * m) + k
         r = pow(l, o) + pow(m, o) + k
@@ -101,3 +103,46 @@ def keygen():
                 print "klm", k, l, m, e, r
                 good = 1
     return sk, pk, n
+
+print "We want to encrypt the letter A"
+msg = "A"
+m = number.bytes_to_long(msg)
+print "The message"
+print m
+sk, pk, mod = keygen()
+print "Secret key, public key, modulus"
+print sk, pk, mod
+c = encrypt(m, pk, mod)
+print "Cipher text"
+print c
+p = decrypt(c, sk, mod)
+print "Plain Text"
+print p
+
+import math
+print "Square root of modulus"
+crack = int(math.sqrt(mod))
+print crack
+
+primes = []
+for i in range(2, 600000, 1):
+    try:
+        if (mod % i) == 0 and i >= 1:
+            primes.append(i)
+    except ZeroDivisionError as zer:
+        pass
+
+print "Primes that traditionally would match the RSA modulus"
+print primes
+l = primes[1]
+m = primes[2]
+t = ((l - 1) * (m - 1))
+#r = pow(l, 2) + pow(m, 2)
+print "Sanity check"
+sk2 = multiplicative_inverse(pk, (mod - 1))
+print sk2
+print pow(c, sk2, mod)
+print "Crack attempt"
+sk2 = multiplicative_inverse(pk, t)
+print sk2
+print pow(c, sk2, mod)
