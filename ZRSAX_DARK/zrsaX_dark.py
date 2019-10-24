@@ -7,7 +7,7 @@ from Crypto.Util import number
 
 keylen = 32
 noncelen = 16
-Klen = 42
+Klen = 77
 mode = sys.argv[1]
 infile = sys.argv[2]
 outfile = sys.argv[3]

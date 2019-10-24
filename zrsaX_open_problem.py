@@ -5,36 +5,6 @@ import math
 
 # requires pycrypto
 
-def mygcd(a, b):
-    while True:
-        while b != 0:
-            a, b = b, a % b
-        return a
-
-def multiplicative_inverse(e, phi):
-    d = 0
-    x1 = 0
-    x2 = 1
-    y1 = 1
-    temp_phi = phi
-
-    while e > 0:
-        temp1 = temp_phi/e
-        temp2 = temp_phi - temp1 * e
-        temp_phi = e
-        e = temp2
-
-        x = x2- temp1* x1
-        y = d - temp1 * y1
-
-        x2 = x1
-        x1 = x
-        d = y1
-        y1 = y
-
-    if temp_phi == 1:
-        return d + phi
-
 def encrypt(ptxt, pk, mod):
     return pow(ptxt, pk, mod)
 
@@ -67,10 +37,13 @@ def testencrypt(pk, sk, mod):
 
 def keygen():
     good = 0
-    psize = 48
+    psize = 16
     o = 2
     while good != 1:
         # Our example primes L, M and the cloaking prime K
+        #k = number.getPrime(psize)
+        #l = number.getPrime(psize)
+        #k = number.getPrime(psize)
         k = 17
         l = 13
         m = 11
@@ -103,11 +76,22 @@ def keygen():
                 c += 1
                 if number.isPrime(c) == True:
                     break
+        if number.isPrime(r) == False:
+            while True:
+                r += 1
+                if number.isPrime(r) == True:
+                    break
         # Create our modulus which is the product of the C curve and the square root of the Base Modulus
-        n = (c * long(math.sqrt(a)))
+        n = (c * a * (t - 1))
+        #n = (c * long(math.sqrt(a)))
+        #n = n * long(math.sqrt(n))
         # Create our totient which is composed of E - 1 and the Square root of the base modulus - 1
         sq = long(math.sqrt(a))
-        s = ((c - 1) * (long(math.sqrt(a)) -1))
+        M = ((r - 1) * (c - 1) * (long(math.sqrt(n)) -1) * t  )
+        s = ((long(math.sqrt(a)) -1) * M )
+        #b = ((long(math.sqrt(M)) -1) * (long(math.sqrt(s)) -1) )
+        #M = (s + M) % n
+        #s = s * (b - 1)
         # Find a number in the totient field that is coprime to the totient
         pk = (number.getRandomRange(1, s))
         g = number.GCD(pk, s)
@@ -117,17 +101,22 @@ def keygen():
             if g == 1:
                 break
         # Find the secret key using the totient S
+        #sk = number.inverse(pk, s)
         sk = number.inverse(pk, s)
+        #sk = number.inverse(sk, s)
         # Test if we can encrypt successfully
+        #tmp = pk
+        #pk = sk
+        #sk = tmp
         if pk != None:
-            if testencrypt(pk, sk, n):
+            if testencrypt(pk, sk, a):
                 good = 1
-    return sk, pk, n, s, e, r, c, a, sq
+    return sk, pk, a, s, e, r, c, a, sq, t
 
 msg = "Hi"
 m = number.bytes_to_long(msg)
 print m
-sk, pk, mod, s, e, r, c, a, sq =  keygen()
+sk, pk, mod, s, e, r, c, a, sq, t =  keygen()
 print sk, pk, mod
 ctxt = encrypt(m, pk, mod)
 print ctxt
@@ -160,23 +149,23 @@ for i in range(start, ceiling, inc):
 print primes
 t = ((e - 1) )
 print "Check e - 1"
-sk2 = multiplicative_inverse(pk, t)
+sk2 = number.inverse(pk, t)
 print sk2
 print "Modulus sanity check"
 print decrypt(ctxt, sk2, mod)
-sk2 = multiplicative_inverse(pk, mod)
+sk2 = number.inverse(pk, mod)
 print sk2
 print decrypt(ctxt, sk2, mod)
 print "Modulus - 1 sanity check"
-sk2 = multiplicative_inverse(pk, (mod - 1))
+sk2 = number.inverse(pk, (mod - 1))
 print sk2
 print decrypt(ctxt, sk2, mod)
 print "Check e"
-sk2 = multiplicative_inverse(pk, e)
+sk2 = number.inverse(pk, e)
 print sk2
 print decrypt(ctxt, sk2, mod)
 print "Check S, this should always decrypt the message"
-sk2 = multiplicative_inverse(pk, s)
+sk2 = number.inverse(pk, s)
 print sk2
 print decrypt(ctxt, sk2, mod)
 print "S ", s
@@ -193,7 +182,7 @@ print mod % a
 print "mod mod sq"
 print mod % sq
 print "Solve"
-s = ((c - 1) * (sq - 1))
-sk2 = multiplicative_inverse(pk, s)
+s = (e * r * c)
+sk2 = number.inverse(pk, s)
 print sk2
 print decrypt(ctxt, sk2, mod)
