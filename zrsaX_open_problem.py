@@ -67,18 +67,18 @@ def testencrypt(pk, sk, mod):
 
 def keygen():
     good = 0
-    psize = 64
+    psize = 48
     o = 2
     while good != 1:
-        # We generate 3 primes L and M and the cloaking prime K this is the base
-        k = number.getPrime(psize)
-        l = number.getPrime(psize)
-        m = number.getPrime(psize)
+        # Our example primes L, M and the cloaking prime K
+        k = 17
+        l = 13
+        m = 11
         # Base modulus as the product of L and M
         a = l * m
         t = ((l - 1) * (m - 1))
         # Jump blockade
-        r = pow(l, 3) * (l * m) + k
+        r = pow(l, 3) * (m * l) + k
         # Find 3 numbers in the jump field
         x = number.getRandomRange(1, (r))
         y = number.getRandomRange(1, (r))
@@ -128,4 +128,72 @@ def keygen():
         if pk != None:
             if testencrypt(pk, sk, n):
                 good = 1
-    return sk, pk, n
+    return sk, pk, n, s, e, r, c, a
+
+msg = "Hi"
+m = number.bytes_to_long(msg)
+print m
+sk, pk, mod, s, e, r, c, a =  keygen()
+print sk, pk, mod
+ctxt = encrypt(m, pk, mod)
+print ctxt
+p = decrypt(ctxt, sk, mod)
+print p
+
+import math
+crack = int(math.sqrt(math.sqrt(mod)))
+print "crack", crack
+
+primes = []
+ceiling = 500000
+start = 1
+inc = 1
+for i in range(start, ceiling, inc):
+#for i in range(crack, 6500, 1):
+    #print i, mod % i
+    #if i == t:
+    #    print mod & i
+    #if i == s:
+    #    print mod & i
+    #if i == l:
+    #    print mod & i
+    try:
+        if (mod % i) == 0 and i >= 1:
+            primes.append(i)
+    except ZeroDivisionError as zer:
+        pass
+
+print primes
+t = ((e - 1) )
+print "Check e - 1"
+sk2 = multiplicative_inverse(pk, t)
+print sk2
+print "Modulus sanity check"
+print decrypt(ctxt, sk2, mod)
+sk2 = multiplicative_inverse(pk, mod)
+print sk2
+print decrypt(ctxt, sk2, mod)
+print "Modulus - 1 sanity check"
+sk2 = multiplicative_inverse(pk, (mod - 1))
+print sk2
+print decrypt(ctxt, sk2, mod)
+print "Check e"
+sk2 = multiplicative_inverse(pk, e)
+print sk2
+print decrypt(ctxt, sk2, mod)
+print "Check S, this should always decrypt the message"
+sk2 = multiplicative_inverse(pk, s)
+print sk2
+print decrypt(ctxt, sk2, mod)
+print "S ", s
+print "Look a zero for modulus mod E but no help", mod % e
+print mod % r
+print mod % s
+print mod % c
+print mod % a
+sk2 = multiplicative_inverse(pk, e)
+print sk2
+print decrypt(ctxt, sk2, mod)
+sk2 = multiplicative_inverse(pk, sk2)
+print sk2
+print decrypt(ctxt, sk2, mod)
