@@ -78,7 +78,7 @@ def keygen():
         a = l * m
         t = ((l - 1) * (m - 1))
         # Jump blockade
-        r = pow(l, 3) * (m * l) + k
+        r = pow(l, 2) * pow(m, 2) + k
         # Find 3 numbers in the jump field
         x = number.getRandomRange(1, (r))
         y = number.getRandomRange(1, (r))
@@ -90,7 +90,7 @@ def keygen():
         q = number.getRandomRange(1, (e))
         v = number.getRandomRange(1, (e))
         # Cloaking curve
-        c = (pow(p, 3) + (q * p) + v) % a
+        c = (pow(p, 3) + (q * p) + v) 
         # Check to make sure the E curve is prime if not increment until it is
         if number.isPrime(e) == False:
             while True:
@@ -104,36 +104,30 @@ def keygen():
                 if number.isPrime(c) == True:
                     break
         # Create our modulus which is the product of the C curve and the square root of the Base Modulus
-        n = (e * int(math.sqrt(a)))
+        n = (c * long(math.sqrt(a)))
         # Create our totient which is composed of E - 1 and the Square root of the base modulus - 1
-        s = ((e - 1) * (int(math.sqrt(a)) -1))
+        sq = long(math.sqrt(a))
+        s = ((c - 1) * (long(math.sqrt(a)) -1))
         # Find a number in the totient field that is coprime to the totient
-        z = (number.getRandomRange(1, s))
-        g = number.GCD(z, s)
+        pk = (number.getRandomRange(1, s))
+        g = number.GCD(pk, s)
         while g != 1:
-            z = (number.getRandomRange(1, s))
-            g = number.GCD(z, s)
+            pk = (number.getRandomRange(1, s))
+            g = number.GCD(pk, s)
             if g == 1:
                 break
-        pk = z
-        # Wash the public key through the base totient
-        _pk = number.inverse(pk, r)
-        pk = _pk
-        # Wash the public key through the C curve
-        _pk = number.inverse(pk, c)
-        pk = _pk
         # Find the secret key using the totient S
         sk = number.inverse(pk, s)
         # Test if we can encrypt successfully
         if pk != None:
             if testencrypt(pk, sk, n):
                 good = 1
-    return sk, pk, n, s, e, r, c, a
+    return sk, pk, n, s, e, r, c, a, sq
 
 msg = "Hi"
 m = number.bytes_to_long(msg)
 print m
-sk, pk, mod, s, e, r, c, a =  keygen()
+sk, pk, mod, s, e, r, c, a, sq =  keygen()
 print sk, pk, mod
 ctxt = encrypt(m, pk, mod)
 print ctxt
@@ -186,14 +180,20 @@ sk2 = multiplicative_inverse(pk, s)
 print sk2
 print decrypt(ctxt, sk2, mod)
 print "S ", s
-print "Look a zero for modulus mod E but no help", mod % e
+print "mod mod E"
+print mod % e
+print "mod mod R"
 print mod % r
+print "mod mod S"
 print mod % s
+print "mod mod C"
 print mod % c
+print "mod mod A"
 print mod % a
-sk2 = multiplicative_inverse(pk, e)
-print sk2
-print decrypt(ctxt, sk2, mod)
-sk2 = multiplicative_inverse(pk, sk2)
+print "mod mod sq"
+print mod % sq
+print "Solve"
+s = ((c - 1) * (sq - 1))
+sk2 = multiplicative_inverse(pk, s)
 print sk2
 print decrypt(ctxt, sk2, mod)
