@@ -41,12 +41,12 @@ def keygen():
     o = 2
     while good != 1:
         # Our example primes L, M and the cloaking prime K
-        k = number.getPrime(psize)
-        l = number.getPrime(psize)
-        k = number.getPrime(psize)
-        #k = 17
-        #l = 13
-        #m = 11
+        #k = number.getPrime(psize)
+        #l = number.getPrime(psize)
+        #k = number.getPrime(psize)
+        k = 17
+        l = 13
+        m = 11
         # Base modulus as the product of L and M
         a = l * m
         t = ((l - 1) * (m - 1))
@@ -82,13 +82,13 @@ def keygen():
                 if number.isPrime(r) == True:
                     break
         # Create our modulus which is the product of the C curve and the square root of the Base Modulus
-        n = (c * a * (t - 1))
+        n = (c * (t - 1))
         #n = (c * long(math.sqrt(a)))
         #n = n * long(math.sqrt(n))
         # Create our totient which is composed of E - 1 and the Square root of the base modulus - 1
-        sq = long(math.sqrt(a))
+        sq = long(math.sqrt(n))
         M = ((r - 1) * (c - 1) * (long(math.sqrt(n)) -1) * t  )
-        s = ((long(math.sqrt(a)) -1) * M )
+        s = ((long(math.sqrt(M)) -1)  * M )
         #b = ((long(math.sqrt(M)) -1) * (long(math.sqrt(s)) -1) )
         #M = (s + M) % n
         #s = s * (b - 1)
@@ -109,14 +109,14 @@ def keygen():
         #pk = sk
         #sk = tmp
         if pk != None:
-            if testencrypt(pk, sk, a):
+            if testencrypt(pk, sk, n):
                 good = 1
-    return sk, pk, a, s, e, r, c, a, sq, t, M
+    return sk, pk, n, s, e, r, c, a, sq, t, M, k, l, m
 
 msg = "A"
 m = number.bytes_to_long(msg)
 print m
-sk, pk, mod, s, e, r, c, a, sq, t, M =  keygen()
+sk, pk, mod, s, e, r, c, a, sq, t, M, k, l, m2 =  keygen()
 print sk, pk, mod
 ctxt = encrypt(m, pk, mod)
 print ctxt
@@ -183,13 +183,23 @@ print "mod mod sq"
 print mod % sq
 print "mod mod M"
 print mod % M
+print "mod mod K"
+print mod % k
+print "mod mod L"
+print mod % l
+print "mod mod m"
+print mod % m2
 print "Solve"
 s = (e * r * c)
 sk2 = number.inverse(pk, s)
 print sk2
 print decrypt(ctxt, sk2, mod)
 print "M always decrypts"
-
 sk2 = number.inverse(pk, M)
+print sk2
+print decrypt(ctxt, sk2, mod)
+print "This shouldn't decrypt ever"
+ps = ((l - 1) * (m2 - 1))
+sk2 = number.inverse(pk, ps)
 print sk2
 print decrypt(ctxt, sk2, mod)

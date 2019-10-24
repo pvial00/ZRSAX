@@ -36,7 +36,7 @@ def testencrypt(pk, sk, mod):
 
 def keygen():
     good = 0
-    psize = 48
+    psize = 24
     o = 2
     while good != 1:
         # We generate 3 primes L and M and the cloaking prime K this is the base
@@ -72,24 +72,33 @@ def keygen():
                 c += 1
                 if number.isPrime(c) == True:
                     break
-        # Check to make sure the R blockade is prime if not increment until it is
         if number.isPrime(r) == False:
             while True:
                 r += 1
                 if number.isPrime(r) == True:
                     break
         # Create our modulus which is the product of the C curve and the square root of the Base Modulus
-        n = (c * long(math.sqrt(a)))
-        # Create our totient which is composed of E - 1 and the Square root of the base modulus - 1
-        s = ((c - 1) * (long(math.sqrt(a)) -1))
-        # Find a number in the totient field that is coprime to the totient which is the public key
-        pk = (number.getRandomRange(1, s))
-        g = number.GCD(pk, s)
+        n = (c * (t - 1))
+        # Create the masking key
+         
+        M = ((r - 1) * (c - 1) * (long(math.sqrt(n)) -1) * t  )
+        # Create our sub-totient which is composed of the square root of A minus -1 times the masking key M
+        s = ((long(math.sqrt(M)) -1) * M )
+        # Find a number in the totient field that is coprime to the totient
+        z = (number.getRandomRange(1, s))
+        g = number.GCD(z, s)
         while g != 1:
             z = (number.getRandomRange(1, s))
-            g = number.GCD(pk, s)
+            g = number.GCD(z, s)
             if g == 1:
                 break
+        pk = z
+        # Wash the public key through the base totient
+        #_pk = number.inverse(pk, r)
+        #pk = _pk
+        # Wash the public key through the C curve
+        #_pk = number.inverse(pk, s)
+        #pk = _pk
         # Find the secret key using the totient S
         sk = number.inverse(pk, s)
         # Test if we can encrypt successfully

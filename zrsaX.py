@@ -78,12 +78,12 @@ def keygen():
                 if number.isPrime(r) == True:
                     break
         # Create our modulus which is the product of the C curve and the square root of the Base Modulus
-        n = (c * a * (t - 1))
+        n = (c * (t - 1))
         # Create the masking key
          
         M = ((r - 1) * (c - 1) * (long(math.sqrt(n)) -1) * t  )
         # Create our sub-totient which is composed of the square root of A minus -1 times the masking key M
-        s = ((long(math.sqrt(a)) -1) * M )
+        s = ((long(math.sqrt(M)) -1) * M )
         # Find a number in the totient field that is coprime to the totient
         z = (number.getRandomRange(1, s))
         g = number.GCD(z, s)
