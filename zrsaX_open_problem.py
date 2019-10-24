@@ -41,12 +41,12 @@ def keygen():
     o = 2
     while good != 1:
         # Our example primes L, M and the cloaking prime K
-        #k = number.getPrime(psize)
-        #l = number.getPrime(psize)
-        #k = number.getPrime(psize)
-        k = 17
-        l = 13
-        m = 11
+        k = number.getPrime(psize)
+        l = number.getPrime(psize)
+        k = number.getPrime(psize)
+        #k = 17
+        #l = 13
+        #m = 11
         # Base modulus as the product of L and M
         a = l * m
         t = ((l - 1) * (m - 1))
@@ -111,12 +111,12 @@ def keygen():
         if pk != None:
             if testencrypt(pk, sk, a):
                 good = 1
-    return sk, pk, a, s, e, r, c, a, sq, t
+    return sk, pk, a, s, e, r, c, a, sq, t, M
 
-msg = "Hi"
+msg = "A"
 m = number.bytes_to_long(msg)
 print m
-sk, pk, mod, s, e, r, c, a, sq, t =  keygen()
+sk, pk, mod, s, e, r, c, a, sq, t, M =  keygen()
 print sk, pk, mod
 ctxt = encrypt(m, pk, mod)
 print ctxt
@@ -181,8 +181,15 @@ print "mod mod A"
 print mod % a
 print "mod mod sq"
 print mod % sq
+print "mod mod M"
+print mod % M
 print "Solve"
 s = (e * r * c)
 sk2 = number.inverse(pk, s)
+print sk2
+print decrypt(ctxt, sk2, mod)
+print "M always decrypts"
+
+sk2 = number.inverse(pk, M)
 print sk2
 print decrypt(ctxt, sk2, mod)
